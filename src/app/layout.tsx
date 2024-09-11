@@ -6,7 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/toaster";
 
 import { CartProvider } from "@/app/context/cartContext";
-import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from 'next/script';
 
 const cairo = Cairo({ subsets: ["latin"] });
 
@@ -31,6 +31,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID;
+
   return (
     <ClerkProvider>
       <html lang="en">
@@ -41,7 +43,22 @@ export default function RootLayout({
             </div>
           </CartProvider>
           <Toaster />
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_TRACKING_ID || "G-R88TXVKF0G"} />
+          <Script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
+          />
+          <Script
+            id="google-analytics"
+            strategy="afterInteractive"
+          >
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', '${GA_TRACKING_ID}');
+            `}
+          </Script>
         </body>
       </html>
     </ClerkProvider>
